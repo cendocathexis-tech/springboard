@@ -1,4 +1,3 @@
-objc
 #import "SBWDCommon.h"
 
 extern NSString * const SBWDOpenEditorNotification;
@@ -19,9 +18,10 @@ extern NSString * const SBWDRespringNotification;
 - (NSUInteger)currentPageIndex;
 - (UIView *)currentIconListView;
 - (NSDictionary *)documentForPage:(NSUInteger)page;
+
 - (BOOL)saveDocument:(NSDictionary *)document
-              page:(NSUInteger)page
-             error:(NSError **)error;
+                page:(NSUInteger)page
+               error:(NSError **)error;
 
 - (NSArray<NSDictionary *> *)availableFonts;
 - (NSString *)fontCSS;
@@ -30,4 +30,3 @@ extern NSString * const SBWDRespringNotification;
 - (NSURL *)runtimeIndexURL;
 
 @end
-```
