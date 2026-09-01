@@ -9,7 +9,7 @@ BUNDLE_NAME = SBWidgetDesignerPrefs
 SBWidgetDesignerPrefs_FILES = SBWDRootListController.m
 SBWidgetDesignerPrefs_INSTALL_PATH = /Library/PreferenceBundles
 SBWidgetDesignerPrefs_FRAMEWORKS = UIKit
-SBWidgetDesignerPrefs_PRIVATE_FRAMEWORKS = Preferences
+SBWidgetDesignerPrefs_PRIVATE_FRAMEWORKS = 
 SBWidgetDesignerPrefs_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/bundle.mk
