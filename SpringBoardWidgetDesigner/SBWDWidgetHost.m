@@ -19,11 +19,12 @@
     [ucc addScriptMessageHandler:self name:@"sbwd"];
     config.userContentController = ucc;
     config.allowsInlineMediaPlayback = YES;
-    [config.preferences setValue:@YES forKey:@"allowFileAccessFromFileURLs"];
-    if ([config respondsToSelector:@selector(setValue:forKey:)]) {
-        [config setValue:@YES forKey:@"allowUniversalAccessFromFileURLs"];
+    
+    // Используйте более безопасный способ установки параметров
+    if (@available(iOS 14.5, *)) {
+        config.defaultWebpagePreferences.allowsContentJavaScript = YES;
     }
-
+    
     WKWebView *view = [[WKWebView alloc] initWithFrame:CGRectZero configuration:config];
     view.opaque = NO;
     view.backgroundColor = [UIColor clearColor];
@@ -97,11 +98,22 @@
     return escaped;
 }
 
+// MARK: - WKNavigationDelegate
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     [self injectDocument];
 }
 
-- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
+- (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+    NSLog(@"WebView navigation error: %@", error);
+}
+
+// MARK: - WKScriptMessageHandler
+- (void)userContentController:(WKUserContentController *)userContentController 
+   didReceiveScriptMessage:(WKScriptMessage *)message {
+    if ([message.name isEqualToString:@"sbwd"]) {
+        NSLog(@"Received SBWD message: %@", message.body);
+        // Обработайте сообщение от JavaScript
+    }
 }
 
 @end
