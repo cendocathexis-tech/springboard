@@ -9,15 +9,10 @@ on:
 jobs:
   build:
     runs-on: macos-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-    
-      - name: Check SDK
-        run: |
-         echo "THEOS=$THEOS"
-         ls -la "$THEOS/sdks"
-         find "$THEOS/sdks" -path "*/Preferences.framework" -print
 
       - name: Setup Theos
         uses: waruhachi/theos-action@v2.4.6
@@ -26,6 +21,12 @@ jobs:
           theos-branch: master
           sdks-src: theos/sdks
           sdks-branch: master
+
+      - name: Check SDK
+        run: |
+          echo "THEOS=$THEOS"
+          ls -la "$THEOS/sdks"
+          find "$THEOS/sdks" -path "*/Preferences.framework" -print
 
       - name: Build Sunlight
         working-directory: SpringBoardWidgetDesigner
