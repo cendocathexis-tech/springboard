@@ -1,16 +1,15 @@
-TARGET := iphone:clang:latest:15.0
+TARGET := iphone:clang:latest:16.0
 INSTALL_TARGET_PROCESSES = SpringBoard
 THEOS_PACKAGE_SCHEME = rootless
 ARCHS = arm64 arm64e
 
 include $(THEOS)/makefiles/common.mk
 
-TWEAK_NAME = SBWidgetDesigner
+TWEAK_NAME = Sunlight
 
-SBWidgetDesigner_FILES = Tweak.xm SBWDManager.m SBWDWidgetHost.m SBWDEditorPresenter.m
-SBWidgetDesigner_CFLAGS = -fobjc-arc -Wno-unused-variable -Wno-unused-function
-SBWidgetDesigner_FRAMEWORKS = UIKit WebKit Foundation CoreText CoreGraphics
-SBWidgetDesigner_LDFLAGS = -lsubstrate
+Sunlight_FILES = Tweak.xm SBWDManager.m SBWDWidgetHost.m SBWDEditorPresenter.m
+Sunlight_CFLAGS = -fobjc-arc -Wno-unused-variable -Wno-unused-function
+Sunlight_FRAMEWORKS = UIKit WebKit Foundation CoreText CoreGraphics
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 

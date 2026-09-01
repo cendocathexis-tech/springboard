@@ -1,9 +1,9 @@
-Package: com.yourname.designer
-Name: SpringBoard Widget Designer
-Depends: mobilesubstrate (>= 0.9.5000), firmware (>= 15.0), preferenceloader
+Package: com.sunlight.designer
+Name: Sunlight
+Depends: firmware (>= 16.0), firmware (<< 17.0), mobilesubstrate, preferenceloader
 Version: 0.1.0
 Architecture: iphoneos-arm64
 Description: HTML widgets inside the SpringBoard icon grid, with a canvas editor and custom fonts.
-Maintainer: yourname
-Author: yourname
+Maintainer: Sunlight
+Author: Sunlight
 Section: Tweaks
