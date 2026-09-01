@@ -2,6 +2,10 @@
 #import "SBWDWidgetHost.h"
 #import "SBWDEditorPresenter.h"
 
+NSString * const SBWDOpenEditorNotification = @"com.yourname.designer/openEditor";
+NSString * const SBWDReloadNotification = @"com.yourname.designer/reload";
+NSString * const SBWDRespringNotification = @"com.yourname.designer/respring";
+
 @interface SBFolderView : UIView
 @property (nonatomic, readonly) NSUInteger currentPageIndex;
 - (NSArray *)iconListViews;
