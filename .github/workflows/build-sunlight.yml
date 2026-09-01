@@ -66,7 +66,20 @@ jobs:
 
           echo ""
           echo "========== DONE =========="
-          
+
+      - name: Find UIUtilities references
+        run: |
+          echo "========== UIUtilities references in project =========="
+          grep -Rni "UIUtilities" SpringBoardWidgetDesigner --exclude-dir=.theos || true
+
+          echo ""
+          echo "========== UIUtilities references in Theos =========="
+          grep -Rni "UIUtilities" "$THEOS/makefiles" --include="*.mk" 2>/dev/null | head -100 || true
+
+          echo ""
+          echo "========== prefs Makefile =========="
+          cat SpringBoardWidgetDesigner/prefs/Makefile
+
       - name: Build Sunlight
         working-directory: SpringBoardWidgetDesigner
         run: make clean package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
