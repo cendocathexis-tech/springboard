@@ -1,0 +1,37 @@
+name: Build Sunlight
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'SpringBoardWidgetDesigner/**'
+
+jobs:
+  build:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: SpringBoardWidgetDesigner
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Theos
+        uses: waruhachi/theos-action@v2.4.6
+        with:
+          theos-src: 'theos/theos'
+          theos-branch: 'master'
+          sdks-src: 'theos/sdks'
+          sdks-branch: 'master'
+
+      - name: Build rootless package
+        run: |
+          make clean package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+
+      - name: Upload deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sunlight-deb
+          path: SpringBoardWidgetDesigner/packages/*.deb
+          if-no-files-found: error
