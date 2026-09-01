@@ -3,7 +3,7 @@
 #import <WebKit/WebKit.h>
 
 static inline NSString *SBWDPrefsDir(void) {
-    return @"/var/mobile/Library/Preferences/com.yourname.designer";
+    return @"/var/mobile/Library/Preferences/com.sunlight.designer";
 }
 
 static inline NSString *SBWDFontsDir(void) {
@@ -29,7 +29,7 @@ static inline NSString *SBWDSupportPath(void) {
 
 static inline BOOL SBWDTweakEnabled(void) {
     Boolean exists = false;
-    Boolean value = CFPreferencesGetAppBooleanValue(CFSTR("enabled"), CFSTR("com.yourname.designer"), &exists);
+    Boolean value = CFPreferencesGetAppBooleanValue(CFSTR("enabled"), CFSTR("com.sunlight.designer"), &exists);
     return exists ? (BOOL)value : YES;
 }
 
