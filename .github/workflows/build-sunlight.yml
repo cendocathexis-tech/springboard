@@ -21,6 +21,12 @@ jobs:
           sdks-src: waruhachi/sdks
           sdks-branch: main
 
+      - name: Debug SDK
+        run: |
+          echo "THEOS=$THEOS"
+          find "$THEOS/sdks" -iname "Preferences.framework" -print
+          find "$THEOS/sdks" -iname "UIUtilities.framework" -print
+
       - name: Build Sunlight
         working-directory: SpringBoardWidgetDesigner
         run: make clean package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
