@@ -23,26 +23,50 @@ jobs:
 
       - name: Debug SDK
         run: |
+          echo "========== THEOS =========="
           echo "THEOS=$THEOS"
-          echo "SDKs:"
+
+          echo ""
+          echo "========== SDK LIST =========="
           ls -1 "$THEOS/sdks"
 
           echo ""
-          echo "Preferences:"
-          find "$THEOS/sdks" -iname "*Preferences*" -print
+          echo "========== PREFERENCES FRAMEWORK =========="
+          find "$THEOS/sdks/iPhoneOS16.5.sdk/System/Library/PrivateFrameworks/Preferences.framework" \
+            -maxdepth 2 -type f -print 2>/dev/null || true
 
           echo ""
-          echo "UIUtilities:"
-          find "$THEOS/sdks" -iname "*UIUtilities*" -print
+          echo "========== UIUTILITIES FILES =========="
+          find "$THEOS/sdks/iPhoneOS16.5.sdk" \
+            -iname "*UIUtilities*" -print 2>/dev/null || true
 
           echo ""
-          echo "Selected SDK:"
+          echo "========== UIUTILITIES REFERENCES IN PREFERENCES =========="
+          grep -R "UIUtilities" \
+            "$THEOS/sdks/iPhoneOS16.5.sdk/System/Library/PrivateFrameworks/Preferences.framework" \
+            2>/dev/null || true
+
+          echo ""
+          echo "========== PREFERENCES TBD =========="
+          if [ -f "$THEOS/sdks/iPhoneOS16.5.sdk/System/Library/PrivateFrameworks/Preferences.framework/Preferences.tbd" ]; then
+            cat "$THEOS/sdks/iPhoneOS16.5.sdk/System/Library/PrivateFrameworks/Preferences.framework/Preferences.tbd"
+          else
+            echo "Preferences.tbd NOT FOUND"
+          fi
+
+          echo ""
+          echo "========== SDK SETTINGS =========="
+          echo "SDKROOT=$SDKROOT"
           xcrun --sdk iphoneos --show-sdk-path || true
 
           echo ""
-          echo "iPhoneOS16.5 Preferences contents:"
-          find "$THEOS/sdks/iPhoneOS16.5.sdk/System/Library/PrivateFrameworks/Preferences.framework" -maxdepth 2 -type f -print 2>/dev/null || true
+          echo "========== THEOS SDK PATHS =========="
+          echo "THEOS=$THEOS"
+          echo "THEOS_SDKS=$THEOS/sdks"
 
+          echo ""
+          echo "========== DONE =========="
+          
       - name: Build Sunlight
         working-directory: SpringBoardWidgetDesigner
         run: make clean package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
