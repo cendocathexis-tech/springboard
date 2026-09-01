@@ -1,0 +1,10 @@
+{
+	entry = {
+		bundle = SBWidgetDesignerPrefs;
+		cell = PSLinkCell;
+		detail = SBWDRootListController;
+		icon = icon.png;
+		isController = 1;
+		label = "Widget Designer";
+	};
+}

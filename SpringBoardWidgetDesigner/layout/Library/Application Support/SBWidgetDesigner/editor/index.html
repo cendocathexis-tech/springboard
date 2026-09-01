@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <title>Widget Designer</title>
+  <link rel="stylesheet" href="editor.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <button id="btnClose" type="button">Закрыть</button>
+      <div class="title">Страница <span id="pageLabel">0</span></div>
+      <button id="btnSave" type="button" class="primary">Сохранить</button>
+    </header>
+
+    <div class="workspace">
+      <canvas id="stage"></canvas>
+      <div id="emptyHint">Добавьте элемент снизу</div>
+    </div>
+
+    <section class="props" id="props">
+      <div class="props-row">
+        <label>Тип <span id="elType">—</span></label>
+        <button id="btnFront" type="button">Наверх</button>
+        <button id="btnBack" type="button">Назад</button>
+        <button id="btnDelete" type="button" class="danger">Удалить</button>
+      </div>
+      <div class="props-row">
+        <label>Контент</label>
+        <input id="propContent" type="text" />
+      </div>
+      <div class="props-row">
+        <label>Цвет</label>
+        <input id="propColor" type="color" value="#ffffff" />
+        <label>Альфа</label>
+        <input id="propOpacity" type="range" min="0" max="100" value="100" />
+      </div>
+      <div class="props-row">
+        <label>Шрифт</label>
+        <button id="btnFont" type="button">System</button>
+        <label>Размер</label>
+        <input id="propSize" type="range" min="10" max="96" value="28" />
+      </div>
+      <div class="props-row">
+        <label>Поворот</label>
+        <input id="propRotate" type="range" min="-180" max="180" value="0" />
+      </div>
+    </section>
+
+    <nav class="toolbar">
+      <button data-tool="text" type="button">Текст</button>
+      <button data-tool="image" type="button">Фото</button>
+      <button data-tool="shape" type="button">Фигура</button>
+      <button data-tool="datetime" type="button">Время</button>
+      <button data-tool="weather" type="button">Погода</button>
+    </nav>
+  </div>
+
+  <div id="fontModal" class="modal hidden">
+    <div class="modal-card">
+      <h2>Шрифты</h2>
+      <p class="hint">Файлы .ttf/.otf из Fonts/. Превью через @font-face, без установки в iOS.</p>
+      <div id="fontList"></div>
+      <button id="btnFontClose" type="button">Закрыть</button>
+    </div>
+  </div>
+
+  <script src="render.js"></script>
+  <script src="editor.js"></script>
+</body>
+</html>
