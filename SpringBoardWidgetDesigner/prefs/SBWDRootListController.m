@@ -4,7 +4,7 @@
 #import <unistd.h>
 
 static NSString *SBWDPrefsDir(void) {
-    return @"/var/mobile/Library/Preferences/com.yourname.designer";
+    return @"/var/mobile/Library/Preferences/com.sunlight.designer";
 }
 
 static void SBWDPost(NSString *name) {
@@ -43,9 +43,9 @@ static void SBWDRespring(void) {
 
     PSSpecifier *enabled = [PSSpecifier preferenceSpecifierNamed:@"Включено" target:self set:@selector(setPreferenceValue:specifier:) get:@selector(readPreferenceValue:) detail:Nil cell:PSSwitchCell edit:Nil];
     [enabled setProperty:@"enabled" forKey:@"key"];
-    [enabled setProperty:@"com.yourname.designer" forKey:@"defaults"];
+    [enabled setProperty:@"com.sunlight.designer" forKey:@"defaults"];
     [enabled setProperty:@YES forKey:@"default"];
-    [enabled setProperty:@"com.yourname.designer/reload" forKey:@"PostNotification"];
+    [enabled setProperty:@"com.sunlight.designer/reload" forKey:@"PostNotification"];
     [specs addObject:enabled];
 
     PSSpecifier *actionGroup = [PSSpecifier preferenceSpecifierNamed:@"Действия" target:self set:NULL get:NULL detail:Nil cell:PSGroupCell edit:Nil];
@@ -104,7 +104,7 @@ static void SBWDRespring(void) {
 }
 
 - (void)openEditor {
-    SBWDPost(@"com.yourname.designer/openEditor");
+    SBWDPost(@"com.sunlight.designer/openEditor");
 }
 
 - (void)respring {
@@ -152,7 +152,7 @@ static void SBWDRespring(void) {
         NSNumber *page = json[@"page"] ?: @0;
         NSString *dest = [SBWDPrefsDir() stringByAppendingFormat:@"/page_%@.json", page];
         [data writeToFile:dest atomically:YES];
-        SBWDPost(@"com.yourname.designer/reload");
+        SBWDPost(@"com.sunlight.designer/reload");
         [self reloadSpecifiers];
         [self showAlert:@"Готово" message:[NSString stringWithFormat:@"Записано в %@", dest]];
     }]];
