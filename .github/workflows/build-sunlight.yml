@@ -16,69 +16,10 @@ jobs:
       - name: Setup Theos
         uses: waruhachi/theos-action@v2.4.6
         with:
-          theos-src: waruhachi/theos
-          theos-branch: main
-          sdks-src: waruhachi/sdks
-          sdks-branch: main
-
-      - name: Debug SDK
-        run: |
-          echo "========== THEOS =========="
-          echo "THEOS=$THEOS"
-
-          echo ""
-          echo "========== SDK LIST =========="
-          ls -1 "$THEOS/sdks"
-
-          echo ""
-          echo "========== PREFERENCES FRAMEWORK =========="
-          find "$THEOS/sdks/iPhoneOS16.5.sdk/System/Library/PrivateFrameworks/Preferences.framework" \
-            -maxdepth 2 -type f -print 2>/dev/null || true
-
-          echo ""
-          echo "========== UIUTILITIES FILES =========="
-          find "$THEOS/sdks/iPhoneOS16.5.sdk" \
-            -iname "*UIUtilities*" -print 2>/dev/null || true
-
-          echo ""
-          echo "========== UIUTILITIES REFERENCES IN PREFERENCES =========="
-          grep -R "UIUtilities" \
-            "$THEOS/sdks/iPhoneOS16.5.sdk/System/Library/PrivateFrameworks/Preferences.framework" \
-            2>/dev/null || true
-
-          echo ""
-          echo "========== PREFERENCES TBD =========="
-          if [ -f "$THEOS/sdks/iPhoneOS16.5.sdk/System/Library/PrivateFrameworks/Preferences.framework/Preferences.tbd" ]; then
-            cat "$THEOS/sdks/iPhoneOS16.5.sdk/System/Library/PrivateFrameworks/Preferences.framework/Preferences.tbd"
-          else
-            echo "Preferences.tbd NOT FOUND"
-          fi
-
-          echo ""
-          echo "========== SDK SETTINGS =========="
-          echo "SDKROOT=$SDKROOT"
-          xcrun --sdk iphoneos --show-sdk-path || true
-
-          echo ""
-          echo "========== THEOS SDK PATHS =========="
-          echo "THEOS=$THEOS"
-          echo "THEOS_SDKS=$THEOS/sdks"
-
-          echo ""
-          echo "========== DONE =========="
-
-      - name: Find UIUtilities references
-        run: |
-          echo "========== UIUtilities references in project =========="
-          grep -Rni "UIUtilities" SpringBoardWidgetDesigner --exclude-dir=.theos || true
-
-          echo ""
-          echo "========== UIUtilities references in Theos =========="
-          grep -Rni "UIUtilities" "$THEOS/makefiles" --include="*.mk" 2>/dev/null | head -100 || true
-
-          echo ""
-          echo "========== prefs Makefile =========="
-          cat SpringBoardWidgetDesigner/prefs/Makefile
+          theos-src: theos/theos
+          theos-branch: master
+          sdks-src: theos/sdks
+          sdks-branch: master
 
       - name: Build Sunlight
         working-directory: SpringBoardWidgetDesigner
