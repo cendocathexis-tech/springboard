@@ -1,4 +1,4 @@
-```objc
+objc
 #import "SBWDCommon.h"
 
 extern NSString * const SBWDOpenEditorNotification;
