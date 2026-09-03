@@ -8,12 +8,12 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
-			<string>SpringBoard Widget Designer</string>
+			<string>Widget Sunlight</string>
 			<key>footerText</key>
 			<string>Specifiers are populated at runtime.</string>
 		</dict>
 	</array>
 	<key>title</key>
-	<string>Widget Designer</string>
+	<string>Widget Sunlight</string>
 </dict>
 </plist>
