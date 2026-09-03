@@ -14,8 +14,13 @@
 - (void)setEditing:(BOOL)editing;
 @end
 
+@interface SBIconView : UIView
+- (void)_handleAddWidgetRequest:(id)request;
+@end
+
 static UIButton *_editorPill;
 static char kSBWDGestureKey;
+static UIView *_addWidgetDiagnostic;
 
 static void SBWDLayoutEditorPill(void) {
     if (!_editorPill || !_editorPill.superview) {
@@ -50,6 +55,43 @@ static void SBWDSetEditingChrome(BOOL editing) {
     SBWDLayoutEditorPill();
 }
 
+static void SBWDShowAddWidgetDiagnostic(UIView *sourceView) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIWindow *window = sourceView.window ?: [SBWDManager shared].currentIconListView.window;
+        if (!window) {
+            return;
+        }
+
+        [_addWidgetDiagnostic removeFromSuperview];
+
+        UIView *box = [[UIView alloc] initWithFrame:CGRectMake(20.0, 90.0, window.bounds.size.width - 40.0, 108.0)];
+        box.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.88];
+        box.layer.cornerRadius = 16.0;
+        box.layer.zPosition = 100000.0;
+
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectInset(box.bounds, 16.0, 12.0)];
+        label.numberOfLines = 0;
+        label.textAlignment = NSTextAlignmentCenter;
+        label.textColor = UIColor.whiteColor;
+        label.font = [UIFont systemFontOfSize:15.0 weight:UIFontWeightSemibold];
+        label.text = @"SUNLIGHT ADD-WIDGET HOOK OK\n_handleAddWidgetRequest: was called.";
+        [box addSubview:label];
+
+        UIButton *close = [UIButton buttonWithType:UIButtonTypeSystem];
+        close.frame = CGRectMake(box.bounds.size.width - 70.0, 8.0, 60.0, 32.0);
+        [close setTitle:@"Close" forState:UIControlStateNormal];
+        [close setTitleColor:UIColor.whiteColor forState:UIControlStateNormal];
+        [close addAction:[UIAction actionWithHandler:^(__kindof UIAction *action) {
+            [_addWidgetDiagnostic removeFromSuperview];
+            _addWidgetDiagnostic = nil;
+        }] forControlEvents:UIControlEventTouchUpInside];
+        [box addSubview:close];
+
+        _addWidgetDiagnostic = box;
+        [window addSubview:box];
+    });
+}
+
 %hook SBRootFolderView
 
 - (void)didMoveToWindow {
@@ -82,6 +124,15 @@ static void SBWDSetEditingChrome(BOOL editing) {
 - (void)setEditing:(BOOL)editing fromIconView:(id)iconView {
     %orig;
     SBWDSetEditingChrome(editing);
+}
+
+%end
+
+%hook SBIconView
+
+- (void)_handleAddWidgetRequest:(id)request {
+    SBWDShowAddWidgetDiagnostic(self);
+    %orig;
 }
 
 %end
