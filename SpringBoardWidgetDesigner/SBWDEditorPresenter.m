@@ -21,9 +21,38 @@
     return instance;
 }
 
+- (void)showDiagnostic:(NSString *)message {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (!self.window) {
+            self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+            self.window.windowLevel = UIWindowLevelStatusBar + 120.0;
+            self.rootViewController = [[UIViewController alloc] init];
+            self.window.rootViewController = self.rootViewController;
+        }
+        self.rootViewController.view.backgroundColor = [UIColor blackColor];
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectInset(self.window.bounds, 24.0, 80.0)];
+        label.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        label.textColor = [UIColor whiteColor];
+        label.numberOfLines = 0;
+        label.textAlignment = NSTextAlignmentCenter;
+        label.font = [UIFont systemFontOfSize:15.0];
+        label.text = message;
+        [self.rootViewController.view addSubview:label];
+        self.window.hidden = NO;
+        [self.window makeKeyAndVisible];
+    });
+}
+
 - (void)presentForPage:(NSUInteger)page listView:(UIView *)listView {
     self.page = page;
     CGRect frame = [UIScreen mainScreen].bounds;
+    NSString *supportPath = SBWDSupportPath();
+    NSString *indexPath = [supportPath stringByAppendingPathComponent:@"editor/index.html"];
+
+    if (![[NSFileManager defaultManager] fileExistsAtPath:indexPath]) {
+        [self showDiagnostic:[NSString stringWithFormat:@"Sunlight Editor\n\nindex.html не найден.\n\n%@", indexPath]];
+        return;
+    }
 
     if (!self.window) {
         UIWindowScene *scene = nil;
@@ -48,7 +77,6 @@
 
         self.window.windowLevel = UIWindowLevelStatusBar + 120.0;
         self.window.backgroundColor = [UIColor blackColor];
-
         self.rootViewController = [[UIViewController alloc] init];
         self.rootViewController.view.backgroundColor = [UIColor blackColor];
         self.window.rootViewController = self.rootViewController;
@@ -56,6 +84,8 @@
 
     self.window.frame = frame;
     self.window.hidden = NO;
+    [self.window makeKeyAndVisible];
+    [self.rootViewController.view layoutIfNeeded];
 
     WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
     WKUserContentController *ucc = [[WKUserContentController alloc] init];
@@ -68,13 +98,13 @@
     self.webView = [[WKWebView alloc] initWithFrame:self.rootViewController.view.bounds configuration:config];
     self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.webView.navigationDelegate = self;
-    self.webView.opaque = YES;
+    self.webView.opaque = NO;
+    self.webView.backgroundColor = [UIColor colorWithRed:0.05 green:0.06 blue:0.08 alpha:1.0];
     [self.rootViewController.view addSubview:self.webView];
+    self.webView.frame = self.rootViewController.view.bounds;
 
-    [self.window makeKeyAndVisible];
-
-    NSURL *url = [[SBWDManager shared] editorIndexURL];
-    NSURL *access = [NSURL fileURLWithPath:SBWDSupportPath()];
+    NSURL *url = [NSURL fileURLWithPath:indexPath];
+    NSURL *access = [NSURL fileURLWithPath:supportPath isDirectory:YES];
     [self.webView loadFileURL:url allowingReadAccessToURL:access];
 }
 
@@ -113,6 +143,14 @@
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     [self injectState];
+}
+
+- (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+    [self showDiagnostic:[NSString stringWithFormat:@"Sunlight Editor\n\nОшибка загрузки страницы:\n%@\n\n%@", error.localizedDescription ?: @"unknown", webView.URL.absoluteString ?: @""]];
+}
+
+- (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+    [self showDiagnostic:[NSString stringWithFormat:@"Sunlight Editor\n\nНе удалось открыть editor/index.html:\n%@\n\n%@", error.localizedDescription ?: @"unknown", webView.URL.absoluteString ?: @""]];
 }
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
