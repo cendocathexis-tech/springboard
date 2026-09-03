@@ -47,8 +47,6 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         CGRect frame = [UIScreen mainScreen].bounds;
 
-        // Stage A diagnostic: deliberately avoid UIWindowScene and WKWebView.
-        // The goal is to prove that SpringBoard can display and dismiss our own window.
         self.window = [[UIWindow alloc] initWithFrame:frame];
         self.window.windowLevel = UIWindowLevelNormal;
         self.window.backgroundColor = [UIColor blackColor];
@@ -58,44 +56,35 @@
         self.rootViewController = root;
         self.window.rootViewController = root;
 
-        UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(20.0, 120.0, frame.size.width - 40.0, 80.0)];
-        title.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-        title.text = @"SUNLIGHT WINDOW OK";
-        title.textColor = [UIColor whiteColor];
-        title.font = [UIFont boldSystemFontOfSize:28.0];
-        title.textAlignment = NSTextAlignmentCenter;
-        [root.view addSubview:title];
+        WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
+        WKUserContentController *contentController = [[WKUserContentController alloc] init];
+        [contentController addScriptMessageHandler:self name:@"sbwd"];
+        configuration.userContentController = contentController;
+        configuration.preferences.javaScriptEnabled = YES;
+        configuration.websiteDataStore = [WKWebsiteDataStore defaultDataStore];
 
-        UILabel *detail = [[UILabel alloc] initWithFrame:CGRectMake(30.0, 220.0, frame.size.width - 60.0, 120.0)];
-        detail.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-        detail.text = @"Stage A\nUIWindow + UIViewController работают.\nWKWebView пока не используется.";
-        detail.textColor = [UIColor whiteColor];
-        detail.numberOfLines = 0;
-        detail.textAlignment = NSTextAlignmentCenter;
-        detail.font = [UIFont systemFontOfSize:17.0];
-        [root.view addSubview:detail];
+        self.webView = [[WKWebView alloc] initWithFrame:root.view.bounds configuration:configuration];
+        self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        self.webView.navigationDelegate = self;
+        self.webView.opaque = YES;
+        self.webView.backgroundColor = [UIColor whiteColor];
+        [root.view addSubview:self.webView];
 
-        UIButton *close = [UIButton buttonWithType:UIButtonTypeSystem];
-        close.frame = CGRectMake(40.0, frame.size.height - 120.0, frame.size.width - 80.0, 54.0);
-        close.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
-        [close setTitle:@"Закрыть" forState:UIControlStateNormal];
-        close.titleLabel.font = [UIFont boldSystemFontOfSize:18.0];
-        [close addTarget:self action:@selector(diagnosticCloseTapped:) forControlEvents:UIControlEventTouchUpInside];
-        [root.view addSubview:close];
+        NSString *supportPath = SBWDSupportPath();
+        NSURL *indexURL = [NSURL fileURLWithPath:[supportPath stringByAppendingPathComponent:@"editor/index.html"]];
+        NSURL *readAccessURL = [NSURL fileURLWithPath:supportPath isDirectory:YES];
 
-        // Prepare the complete view hierarchy before exposing the window.
         [root.view layoutIfNeeded];
         self.window.hidden = NO;
         [self.window makeKeyAndVisible];
+
+        [self.webView loadFileURL:indexURL allowingReadAccessToURL:readAccessURL];
     });
 }
 
 - (void)diagnosticCloseTapped:(UIButton *)sender {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.window resignKeyWindow];
-        self.window.hidden = YES;
-        self.window = nil;
-        self.rootViewController = nil;
+        [self dismiss];
     });
 }
 
@@ -109,16 +98,19 @@
         return;
     }
 
-    // TEMPORARY STAGE A DIAGNOSTIC.
-    // Do not involve WKWebView or UIWindowScene until the native window itself is proven stable.
     [self showWindowDiagnostic];
 }
 
 - (void)dismiss {
     [self.webView.configuration.userContentController removeScriptMessageHandlerForName:@"sbwd"];
+    [self.webView stopLoading];
+    self.webView.navigationDelegate = nil;
     [self.webView removeFromSuperview];
     self.webView = nil;
+    [self.window resignKeyWindow];
     self.window.hidden = YES;
+    self.window = nil;
+    self.rootViewController = nil;
     [[SBWDManager shared] reloadWidgets];
 }
 
@@ -198,13 +190,7 @@
     picker.modalPresentationStyle = UIModalPresentationFormSheet;
     UIViewController *root = self.window.rootViewController;
     if (!root) {
-        root = [[UIViewController alloc] init];
-        root.view.backgroundColor = [UIColor blackColor];
-        self.rootViewController = root;
-        self.window.rootViewController = root;
-        [root.view addSubview:self.webView];
-        self.webView.frame = root.view.bounds;
-        self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        return;
     }
     [root presentViewController:picker animated:YES completion:nil];
 }
