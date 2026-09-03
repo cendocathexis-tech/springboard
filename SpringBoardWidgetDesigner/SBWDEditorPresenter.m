@@ -43,9 +43,64 @@
     });
 }
 
+- (void)showWindowDiagnostic {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        CGRect frame = [UIScreen mainScreen].bounds;
+
+        // Stage A diagnostic: deliberately avoid UIWindowScene and WKWebView.
+        // The goal is to prove that SpringBoard can display and dismiss our own window.
+        self.window = [[UIWindow alloc] initWithFrame:frame];
+        self.window.windowLevel = UIWindowLevelNormal;
+        self.window.backgroundColor = [UIColor blackColor];
+
+        UIViewController *root = [[UIViewController alloc] init];
+        root.view.backgroundColor = [UIColor blackColor];
+        self.rootViewController = root;
+        self.window.rootViewController = root;
+
+        UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(20.0, 120.0, frame.size.width - 40.0, 80.0)];
+        title.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+        title.text = @"SUNLIGHT WINDOW OK";
+        title.textColor = [UIColor whiteColor];
+        title.font = [UIFont boldSystemFontOfSize:28.0];
+        title.textAlignment = NSTextAlignmentCenter;
+        [root.view addSubview:title];
+
+        UILabel *detail = [[UILabel alloc] initWithFrame:CGRectMake(30.0, 220.0, frame.size.width - 60.0, 120.0)];
+        detail.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+        detail.text = @"Stage A\nUIWindow + UIViewController работают.\nWKWebView пока не используется.";
+        detail.textColor = [UIColor whiteColor];
+        detail.numberOfLines = 0;
+        detail.textAlignment = NSTextAlignmentCenter;
+        detail.font = [UIFont systemFontOfSize:17.0];
+        [root.view addSubview:detail];
+
+        UIButton *close = [UIButton buttonWithType:UIButtonTypeSystem];
+        close.frame = CGRectMake(40.0, frame.size.height - 120.0, frame.size.width - 80.0, 54.0);
+        close.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
+        [close setTitle:@"Закрыть" forState:UIControlStateNormal];
+        close.titleLabel.font = [UIFont boldSystemFontOfSize:18.0];
+        [close addTarget:self action:@selector(diagnosticCloseTapped:) forControlEvents:UIControlEventTouchUpInside];
+        [root.view addSubview:close];
+
+        // Prepare the complete view hierarchy before exposing the window.
+        [root.view layoutIfNeeded];
+        self.window.hidden = NO;
+        [self.window makeKeyAndVisible];
+    });
+}
+
+- (void)diagnosticCloseTapped:(UIButton *)sender {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.window resignKeyWindow];
+        self.window.hidden = YES;
+        self.window = nil;
+        self.rootViewController = nil;
+    });
+}
+
 - (void)presentForPage:(NSUInteger)page listView:(UIView *)listView {
     self.page = page;
-    CGRect frame = [UIScreen mainScreen].bounds;
     NSString *supportPath = SBWDSupportPath();
     NSString *indexPath = [supportPath stringByAppendingPathComponent:@"editor/index.html"];
 
@@ -54,58 +109,9 @@
         return;
     }
 
-    if (!self.window) {
-        UIWindowScene *scene = nil;
-        if (@available(iOS 13.0, *)) {
-            for (UIScene *candidate in [UIApplication sharedApplication].connectedScenes) {
-                if (![candidate isKindOfClass:[UIWindowScene class]]) {
-                    continue;
-                }
-                UIWindowScene *candidateScene = (UIWindowScene *)candidate;
-                if (candidateScene.activationState == UISceneActivationStateForegroundActive) {
-                    scene = candidateScene;
-                    break;
-                }
-            }
-        }
-
-        if (scene) {
-            self.window = [[UIWindow alloc] initWithWindowScene:scene];
-        } else {
-            self.window = [[UIWindow alloc] initWithFrame:frame];
-        }
-
-        self.window.windowLevel = UIWindowLevelStatusBar + 120.0;
-        self.window.backgroundColor = [UIColor blackColor];
-        self.rootViewController = [[UIViewController alloc] init];
-        self.rootViewController.view.backgroundColor = [UIColor blackColor];
-        self.window.rootViewController = self.rootViewController;
-    }
-
-    self.window.frame = frame;
-    self.window.hidden = NO;
-    [self.window makeKeyAndVisible];
-    [self.rootViewController.view layoutIfNeeded];
-
-    WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
-    WKUserContentController *ucc = [[WKUserContentController alloc] init];
-    [ucc addScriptMessageHandler:self name:@"sbwd"];
-    config.userContentController = ucc;
-    [config.preferences setValue:@YES forKey:@"allowFileAccessFromFileURLs"];
-    [config setValue:@YES forKey:@"allowUniversalAccessFromFileURLs"];
-
-    [self.webView removeFromSuperview];
-    self.webView = [[WKWebView alloc] initWithFrame:self.rootViewController.view.bounds configuration:config];
-    self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    self.webView.navigationDelegate = self;
-    self.webView.opaque = NO;
-    self.webView.backgroundColor = [UIColor colorWithRed:0.05 green:0.06 blue:0.08 alpha:1.0];
-    [self.rootViewController.view addSubview:self.webView];
-    self.webView.frame = self.rootViewController.view.bounds;
-
-    NSURL *url = [NSURL fileURLWithPath:indexPath];
-    NSURL *access = [NSURL fileURLWithPath:supportPath isDirectory:YES];
-    [self.webView loadFileURL:url allowingReadAccessToURL:access];
+    // TEMPORARY STAGE A DIAGNOSTIC.
+    // Do not involve WKWebView or UIWindowScene until the native window itself is proven stable.
+    [self showWindowDiagnostic];
 }
 
 - (void)dismiss {
