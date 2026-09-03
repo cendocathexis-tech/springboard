@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
+#import <rootless.h>
 
 static inline NSString *SBWDPrefsDir(void) {
     return @"/var/mobile/Library/Preferences/com.sunlight.designer";
@@ -19,12 +20,7 @@ static inline NSString *SBWDPagePath(NSUInteger page) {
 }
 
 static inline NSString *SBWDSupportPath(void) {
-    NSFileManager *fm = [NSFileManager defaultManager];
-    NSString *rootless = @"/var/jb/Library/Application Support/SBWidgetDesigner";
-    if ([fm fileExistsAtPath:rootless]) {
-        return rootless;
-    }
-    return @"/Library/Application Support/SBWidgetDesigner";
+    return ROOT_PATH_NS(@"/Library/Application Support/SBWidgetDesigner");
 }
 
 static inline BOOL SBWDTweakEnabled(void) {
