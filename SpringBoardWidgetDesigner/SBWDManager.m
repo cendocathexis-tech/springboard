@@ -2,9 +2,9 @@
 #import "SBWDWidgetHost.h"
 #import "SBWDEditorPresenter.h"
 
-NSString * const SBWDOpenEditorNotification = @"com.yourname.designer/openEditor";
-NSString * const SBWDReloadNotification = @"com.yourname.designer/reload";
-NSString * const SBWDRespringNotification = @"com.yourname.designer/respring";
+NSString * const SBWDOpenEditorNotification = @"com.sunlight.designer/openEditor";
+NSString * const SBWDReloadNotification = @"com.sunlight.designer/reload";
+NSString * const SBWDRespringNotification = @"com.sunlight.designer/respring";
 
 @interface SBFolderView : UIView
 @property (nonatomic, readonly) NSUInteger currentPageIndex;
