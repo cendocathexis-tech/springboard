@@ -17,16 +17,32 @@ jobs:
       - name: Setup Theos
         uses: waruhachi/theos-action@v2.4.6
         with:
-          theos-src: theos/theos
-          theos-branch: master
-          sdks-src: theos/sdks
-          sdks-branch: master
+          theos-src: waruhachi/theos
+          theos-branch: main
+          sdks-src: waruhachi/sdks
+          sdks-branch: main
 
-      - name: Check SDK
+      - name: Debug SDK
         run: |
           echo "THEOS=$THEOS"
-          ls -la "$THEOS/sdks"
-          find "$THEOS/sdks" -path "*/Preferences.framework" -print
+          echo "SDKs:"
+          ls -1 "$THEOS/sdks"
+
+          echo ""
+          echo "Preferences:"
+          find "$THEOS/sdks" -iname "*Preferences*" -print
+
+          echo ""
+          echo "UIUtilities:"
+          find "$THEOS/sdks" -iname "*UIUtilities*" -print
+
+          echo ""
+          echo "Selected SDK:"
+          xcrun --sdk iphoneos --show-sdk-path || true
+
+          echo ""
+          echo "iPhoneOS16.5 Preferences contents:"
+          find "$THEOS/sdks/iPhoneOS16.5.sdk/System/Library/PrivateFrameworks/Preferences.framework" -maxdepth 2 -type f -print 2>/dev/null || true
 
       - name: Build Sunlight
         working-directory: SpringBoardWidgetDesigner
