@@ -60,7 +60,6 @@
         WKUserContentController *contentController = [[WKUserContentController alloc] init];
         [contentController addScriptMessageHandler:self name:@"sbwd"];
         configuration.userContentController = contentController;
-        configuration.preferences.javaScriptEnabled = YES;
         configuration.websiteDataStore = [WKWebsiteDataStore defaultDataStore];
 
         self.webView = [[WKWebView alloc] initWithFrame:root.view.bounds configuration:configuration];
