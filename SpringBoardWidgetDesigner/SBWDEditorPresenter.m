@@ -57,11 +57,6 @@
         self.window.rootViewController = root;
 
         WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
-        WKUserContentController *contentController = [[WKUserContentController alloc] init];
-        [contentController addScriptMessageHandler:self name:@"sbwd"];
-        configuration.userContentController = contentController;
-        configuration.websiteDataStore = [WKWebsiteDataStore defaultDataStore];
-
         self.webView = [[WKWebView alloc] initWithFrame:root.view.bounds configuration:configuration];
         self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         self.webView.navigationDelegate = self;
@@ -69,15 +64,19 @@
         self.webView.backgroundColor = [UIColor whiteColor];
         [root.view addSubview:self.webView];
 
-        NSString *supportPath = SBWDSupportPath();
-        NSURL *indexURL = [NSURL fileURLWithPath:[supportPath stringByAppendingPathComponent:@"editor/index.html"]];
-        NSURL *readAccessURL = [NSURL fileURLWithPath:supportPath isDirectory:YES];
+        UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        closeButton.frame = CGRectMake(20.0, frame.size.height - 70.0, 120.0, 44.0);
+        closeButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleRightMargin;
+        [closeButton setTitle:@"Закрыть" forState:UIControlStateNormal];
+        [closeButton addTarget:self action:@selector(diagnosticCloseTapped:) forControlEvents:UIControlEventTouchUpInside];
+        [root.view addSubview:closeButton];
 
         [root.view layoutIfNeeded];
         self.window.hidden = NO;
         [self.window makeKeyAndVisible];
 
-        [self.webView loadFileURL:indexURL allowingReadAccessToURL:readAccessURL];
+        NSString *html = @"<!doctype html><html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'></head><body style='margin:0;background:white;font-family:-apple-system'><div style='padding:40px;font-size:28px;color:black'>SUNLIGHT WEBVIEW OK</div><div style='padding:0 40px;font-size:18px;color:#555'>Stage B: WKWebView works.</div></body></html>";
+        [self.webView loadHTMLString:html baseURL:nil];
     });
 }
 
