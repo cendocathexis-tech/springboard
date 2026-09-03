@@ -5,6 +5,7 @@
 @interface SBWDEditorPresenter () <WKNavigationDelegate, WKScriptMessageHandler, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 @property (nonatomic, strong) UIWindow *window;
 @property (nonatomic, strong) WKWebView *webView;
+@property (nonatomic, strong) UIViewController *rootViewController;
 @property (nonatomic, assign) NSUInteger page;
 @property (nonatomic, copy) void (^pendingImageCallback)(NSString *relativePath);
 @end
@@ -23,25 +24,36 @@
 - (void)presentForPage:(NSUInteger)page listView:(UIView *)listView {
     self.page = page;
     CGRect frame = [UIScreen mainScreen].bounds;
+
     if (!self.window) {
+        UIWindowScene *scene = nil;
         if (@available(iOS 13.0, *)) {
-            UIWindowScene *scene = nil;
             for (UIScene *candidate in [UIApplication sharedApplication].connectedScenes) {
-                if ([candidate isKindOfClass:[UIWindowScene class]] && candidate.activationState == UISceneActivationStateForegroundActive) {
-                    scene = (UIWindowScene *)candidate;
+                if (![candidate isKindOfClass:[UIWindowScene class]]) {
+                    continue;
+                }
+                UIWindowScene *candidateScene = (UIWindowScene *)candidate;
+                if (candidateScene.activationState == UISceneActivationStateForegroundActive) {
+                    scene = candidateScene;
                     break;
                 }
             }
-            if (scene) {
-                self.window = [[UIWindow alloc] initWithWindowScene:scene];
-            }
         }
-        if (!self.window) {
+
+        if (scene) {
+            self.window = [[UIWindow alloc] initWithWindowScene:scene];
+        } else {
             self.window = [[UIWindow alloc] initWithFrame:frame];
         }
+
         self.window.windowLevel = UIWindowLevelStatusBar + 120.0;
         self.window.backgroundColor = [UIColor blackColor];
+
+        self.rootViewController = [[UIViewController alloc] init];
+        self.rootViewController.view.backgroundColor = [UIColor blackColor];
+        self.window.rootViewController = self.rootViewController;
     }
+
     self.window.frame = frame;
     self.window.hidden = NO;
 
@@ -53,11 +65,12 @@
     [config setValue:@YES forKey:@"allowUniversalAccessFromFileURLs"];
 
     [self.webView removeFromSuperview];
-    self.webView = [[WKWebView alloc] initWithFrame:self.window.bounds configuration:config];
+    self.webView = [[WKWebView alloc] initWithFrame:self.rootViewController.view.bounds configuration:config];
     self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.webView.navigationDelegate = self;
     self.webView.opaque = YES;
-    [self.window addSubview:self.webView];
+    [self.rootViewController.view addSubview:self.webView];
+
     [self.window makeKeyAndVisible];
 
     NSURL *url = [[SBWDManager shared] editorIndexURL];
@@ -142,9 +155,12 @@
     UIViewController *root = self.window.rootViewController;
     if (!root) {
         root = [[UIViewController alloc] init];
+        root.view.backgroundColor = [UIColor blackColor];
+        self.rootViewController = root;
         self.window.rootViewController = root;
         [root.view addSubview:self.webView];
         self.webView.frame = root.view.bounds;
+        self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     }
     [root presentViewController:picker animated:YES completion:nil];
 }
