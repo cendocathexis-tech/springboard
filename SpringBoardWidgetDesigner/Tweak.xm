@@ -92,6 +92,12 @@ static void SBWDShowAddWidgetDiagnostic(UIView *sourceView) {
     });
 }
 
+static void SBWDWriteLoadMarker(void) {
+    NSString *path = @"/var/jb/Library/Application Support/SBWidgetDesigner/sunlight-loaded.txt";
+    NSString *contents = [NSString stringWithFormat:@"Sunlight loaded into SpringBoard\n%@\n", [NSDate date]];
+    [contents writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:nil];
+}
+
 %hook SBRootFolderView
 
 - (void)didMoveToWindow {
@@ -151,6 +157,8 @@ static void SBWDDarwinCallback(CFNotificationCenterRef center, void *observer, C
 }
 
 %ctor {
+    SBWDWriteLoadMarker();
+
     CFNotificationCenterRef darwin = CFNotificationCenterGetDarwinNotifyCenter();
     CFNotificationCenterAddObserver(darwin, NULL, SBWDDarwinCallback, (__bridge CFStringRef)SBWDOpenEditorNotification, NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
     CFNotificationCenterAddObserver(darwin, NULL, SBWDDarwinCallback, (__bridge CFStringRef)SBWDReloadNotification, NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
